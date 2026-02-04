@@ -1,0 +1,199 @@
+SERVICES AGREEMENT
+
+This Services Agreement ("Agreement") is entered into as of January 15, 2024,
+by and between Acme Technologies Inc. ("Company") and Global Solutions Ltd. ("Contractor").
+
+RECITALS
+
+WHEREAS, the Company desires to engage the Contractor to provide certain
+software development services; and
+
+WHEREAS, the Contractor has the expertise, skills, and resources to provide
+such services;
+
+NOW, THEREFORE, in consideration of the mutual covenants and agreements set
+forth herein, and for other good and valuable consideration, the receipt and
+sufficiency of which are hereby acknowledged, the parties agree as follows:
+
+1. TERM AND TERMINATION
+
+1.1 Term. This Agreement shall commence on the Effective Date and shall
+continue for a period of twelve (12) months ("Initial Term"), unless earlier
+terminated as provided herein. The Agreement shall automatically renew for
+successive one (1) year periods unless either party provides written notice
+of non-renewal at least thirty (30) days prior to the expiration of the
+then-current term.
+
+1.2 Termination for Cause. Either party may terminate this Agreement upon
+thirty (30) days written notice if the other party commits a material breach
+of this Agreement and fails to cure such breach within thirty (30) days after
+receiving written notice thereof.
+
+1.3 Termination for Convenience. The Company may terminate this Agreement
+at any time without cause upon sixty (60) days prior written notice to the
+Contractor.
+
+1.4 Effect of Termination. Upon termination, the Contractor shall deliver
+all work product to the Company and the Company shall pay for all services
+rendered through the effective date of termination.
+
+2. SERVICES AND COMPENSATION
+
+2.1 Services. The Contractor shall provide the software development services
+described in Exhibit A attached hereto ("Services").
+
+2.2 Compensation. The Company shall pay the Contractor a fee of $150,000
+per year, payable in monthly installments of $12,500, due within thirty (30)
+days of receipt of invoice. Late payments shall accrue interest at a rate of
+1.5% per month.
+
+2.3 Expenses. The Company shall reimburse the Contractor for reasonable
+pre-approved expenses up to $10,000 per quarter.
+
+3. CONFIDENTIALITY
+
+3.1 Confidential Information. Each party acknowledges that during the term
+of this Agreement, it may receive or have access to confidential and
+proprietary information of the other party ("Confidential Information").
+Confidential Information includes, but is not limited to, trade secrets,
+business plans, customer lists, financial data, technical specifications,
+and source code.
+
+3.2 Obligations. The receiving party shall: (a) maintain the confidentiality
+of the disclosing party's Confidential Information using at least the same
+degree of care as it uses for its own confidential information; (b) not
+disclose such information to any third party without the prior written consent
+of the disclosing party; and (c) use such information solely for the purposes
+of performing its obligations under this Agreement.
+
+3.3 Exceptions. Confidential Information shall not include information that:
+(a) is or becomes publicly available through no fault of the receiving party;
+(b) was already known to the receiving party prior to disclosure; (c) is
+received from a third party without restriction; or (d) is independently
+developed by the receiving party.
+
+3.4 Duration. The obligations of confidentiality shall survive the termination
+of this Agreement for a period of three (3) years.
+
+4. INTELLECTUAL PROPERTY
+
+4.1 Work Product. All work product, inventions, and developments created by
+the Contractor in connection with the Services shall be considered "work made
+for hire" and shall be the sole and exclusive property of the Company. The
+Contractor hereby assigns all rights, title, and interest in and to such
+work product to the Company.
+
+4.2 Pre-existing IP. The Contractor retains ownership of all intellectual
+property that existed prior to the commencement of this Agreement
+("Pre-existing IP"). The Contractor grants the Company a non-exclusive,
+royalty-free, perpetual license to use any Pre-existing IP incorporated into
+the work product.
+
+5. INDEMNIFICATION
+
+5.1 Contractor Indemnification. The Contractor shall indemnify, defend, and
+hold harmless the Company and its officers, directors, employees, and agents
+from and against any and all claims, damages, losses, liabilities, costs, and
+expenses (including reasonable attorneys' fees) arising out of or related to:
+(a) the Contractor's breach of this Agreement; (b) the Contractor's negligence
+or willful misconduct; or (c) any claim that the Services or work product
+infringes the intellectual property rights of any third party.
+
+6. LIMITATION OF LIABILITY
+
+6.1 Exclusion of Damages. IN NO EVENT SHALL EITHER PARTY BE LIABLE FOR ANY
+INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, REGARDLESS
+OF THE CAUSE OF ACTION OR THE THEORY OF LIABILITY, EVEN IF SUCH PARTY HAS
+BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+
+6.2 Cap. THE AGGREGATE LIABILITY OF EITHER PARTY UNDER THIS AGREEMENT SHALL
+NOT EXCEED THE TOTAL FEES PAID OR PAYABLE TO THE CONTRACTOR DURING THE
+TWELVE (12) MONTH PERIOD PRECEDING THE EVENT GIVING RISE TO THE CLAIM.
+
+7. REPRESENTATIONS AND WARRANTIES
+
+7.1 Mutual Representations. Each party represents and warrants that: (a) it
+is duly organized, validly existing, and in good standing under the laws of
+its jurisdiction of organization; (b) it has full power and authority to enter
+into this Agreement; and (c) this Agreement constitutes a valid and binding
+obligation enforceable in accordance with its terms.
+
+7.2 Contractor Warranties. The Contractor further warrants that: (a) the
+Services shall be performed in a professional and workmanlike manner consistent
+with industry standards; and (b) the work product shall be free from material
+defects for a period of ninety (90) days after delivery.
+
+8. NON-COMPETE
+
+8.1 Restriction. During the term of this Agreement and for a period of twelve
+(12) months thereafter, the Contractor shall not directly or indirectly engage
+in any business that competes with the Company's core business activities
+within a fifty (50) mile radius of the Company's principal offices.
+
+9. FORCE MAJEURE
+
+9.1 Neither party shall be liable for any failure or delay in performing its
+obligations under this Agreement to the extent that such failure or delay
+results from circumstances beyond the reasonable control of that party,
+including but not limited to acts of God, natural disasters, war, terrorism,
+riots, embargoes, acts of civil or military authorities, fire, floods,
+epidemics, pandemic, strikes, or shortages of transportation, facilities,
+fuel, energy, labor, or materials.
+
+10. GOVERNING LAW AND DISPUTE RESOLUTION
+
+10.1 Governing Law. This Agreement shall be governed by and construed in
+accordance with the laws of the State of Delaware, without regard to its
+conflict of law principles.
+
+10.2 Dispute Resolution. Any dispute arising out of or relating to this
+Agreement shall first be submitted to good faith mediation. If mediation fails
+to resolve the dispute within sixty (60) days, either party may submit the
+dispute to binding arbitration administered by the American Arbitration
+Association in accordance with its Commercial Arbitration Rules. The
+arbitration shall take place in Wilmington, Delaware.
+
+11. ASSIGNMENT
+
+11.1 Neither party may assign or transfer this Agreement or any rights or
+obligations hereunder without the prior written consent of the other party,
+except that either party may assign this Agreement to a successor in
+connection with a merger, acquisition, or sale of all or substantially all
+of its assets.
+
+12. NOTICE
+
+12.1 All notices required or permitted under this Agreement shall be in
+writing and shall be delivered by certified mail, return receipt requested,
+or by nationally recognized overnight courier, addressed to the parties at
+the addresses set forth above or such other address as may be designated in
+writing by the respective parties.
+
+13. SEVERABILITY
+
+13.1 If any provision of this Agreement is held to be invalid, illegal, or
+unenforceable, the remaining provisions shall remain in full force and effect,
+and the invalid provision shall be modified to the minimum extent necessary
+to make it valid and enforceable.
+
+14. ENTIRE AGREEMENT
+
+14.1 This Agreement, together with all exhibits and schedules attached hereto,
+constitutes the entire agreement between the parties with respect to the
+subject matter hereof and supersedes all prior agreements, understandings,
+negotiations, and discussions, whether oral or written, between the parties.
+
+15. AMENDMENT
+
+15.1 This Agreement may not be amended or modified except by a written
+instrument signed by both parties.
+
+IN WITNESS WHEREOF, the parties have executed this Agreement as of the date
+first written above.
+
+ACME TECHNOLOGIES INC.               GLOBAL SOLUTIONS LTD.
+
+By: ___________________________      By: ___________________________
+Name: John Smith                     Name: Sarah Johnson
+Title: Chief Executive Officer       Title: Managing Director
+Date: January 15, 2024               Date: January 15, 2024

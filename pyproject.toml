@@ -1,0 +1,77 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "legal-doc-analyzer"
+version = "0.1.0"
+description = "AI-powered legal document analysis — clause extraction, risk detection, and summarization"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [
+    {name = "Abdul Salam", email = "get2salam@gmail.com"},
+]
+keywords = ["legal", "nlp", "ai", "document-analysis", "clause-extraction", "contract"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Legal Industry",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Text Processing :: Linguistic",
+]
+
+dependencies = [
+    "spacy>=3.7",
+    "transformers>=4.36",
+    "torch>=2.1",
+    "pdfplumber>=0.10",
+    "python-docx>=1.1",
+    "pydantic>=2.5",
+    "rich>=13.7",
+    "click>=8.1",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "ruff>=0.1",
+    "mypy>=1.8",
+    "pre-commit>=3.6",
+]
+api = [
+    "fastapi>=0.108",
+    "uvicorn>=0.25",
+]
+
+[project.scripts]
+legal-doc-analyzer = "legal_doc_analyzer.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/get2salam/legal-doc-analyzer"
+Repository = "https://github.com/get2salam/legal-doc-analyzer"
+Issues = "https://github.com/get2salam/legal-doc-analyzer/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
