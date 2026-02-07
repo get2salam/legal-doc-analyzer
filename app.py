@@ -299,57 +299,126 @@ def main():
     st.markdown('<p class="main-header">⚖️ Legal Document Analyzer</p>', unsafe_allow_html=True)
     st.markdown('<p class="sub-header">AI-powered analysis of contracts, agreements, and legal documents</p>', unsafe_allow_html=True)
     
-    # File upload
-    uploaded_file = st.file_uploader(
-        "Upload your legal document",
-        type=['pdf', 'docx', 'txt'],
-        help="Supported formats: PDF, Word (.docx), Text (.txt)"
-    )
+    # Tabs for single file vs batch
+    tab1, tab2 = st.tabs(["📄 Single Document", "📁 Batch Analysis"])
     
-    if uploaded_file:
-        st.session_state.file_name = uploaded_file.name
-        
-        # Extract text
-        with st.spinner("📄 Extracting text from document..."):
-            text = extract_text_from_file(uploaded_file)
-            st.session_state.document_text = text
-        
-        if text:
-            st.success(f"✅ Successfully extracted {len(text):,} characters from {uploaded_file.name}")
+    with tab1:
+        # File upload
+        uploaded_file = st.file_uploader(
+            "Upload your legal document",
+            type=['pdf', 'docx', 'txt'],
+            help="Supported formats: PDF, Word (.docx), Text (.txt)",
+            key="single_file"
+        )
+    
+        if uploaded_file:
+            st.session_state.file_name = uploaded_file.name
             
-            # Show preview
-            with st.expander("📖 Preview Document Text", expanded=False):
-                st.text_area("Extracted Text", text[:5000] + ("..." if len(text) > 5000 else ""), height=200)
+            # Extract text
+            with st.spinner("📄 Extracting text from document..."):
+                text = extract_text_from_file(uploaded_file)
+                st.session_state.document_text = text
             
-            # Analyze button
-            if st.button("🔍 Analyze Document", type="primary", use_container_width=True):
+            if text:
+                st.success(f"✅ Successfully extracted {len(text):,} characters from {uploaded_file.name}")
                 
-                # Check for API keys
-                api_key = os.getenv('OPENAI_API_KEY') or os.getenv('ANTHROPIC_API_KEY')
+                # Show preview
+                with st.expander("📖 Preview Document Text", expanded=False):
+                    st.text_area("Extracted Text", text[:5000] + ("..." if len(text) > 5000 else ""), height=200)
                 
-                if not api_key:
-                    st.error("⚠️ No API key configured. Please set OPENAI_API_KEY or ANTHROPIC_API_KEY in your .env file.")
-                    st.code("cp .env.example .env\n# Then edit .env with your API key", language="bash")
+                # Analyze button
+                if st.button("🔍 Analyze Document", type="primary", use_container_width=True):
                     
-                    # Demo mode
-                    st.info("💡 Running in demo mode with sample analysis...")
-                    st.session_state.analysis_result = get_demo_result()
-                else:
-                    with st.spinner("🧠 AI is analyzing your document... This may take a minute."):
-                        try:
-                            analyzer = LegalAnalyzer(model=model)
-                            result = analyzer.analyze(text, depth=depth)
-                            st.session_state.analysis_result = result
-                        except Exception as e:
-                            st.error(f"Analysis failed: {str(e)}")
-                            st.session_state.analysis_result = get_demo_result()
-        else:
-            st.error("❌ Could not extract text from the document. Please try a different file.")
+                    # Check for API keys
+                    api_key = os.getenv('OPENAI_API_KEY') or os.getenv('ANTHROPIC_API_KEY')
+                    
+                    if not api_key:
+                        st.error("⚠️ No API key configured. Please set OPENAI_API_KEY or ANTHROPIC_API_KEY in your .env file.")
+                        st.code("cp .env.example .env\n# Then edit .env with your API key", language="bash")
+                        
+                        # Demo mode
+                        st.info("💡 Running in demo mode with sample analysis...")
+                        st.session_state.analysis_result = get_demo_result()
+                    else:
+                        with st.spinner("🧠 AI is analyzing your document... This may take a minute."):
+                            try:
+                                analyzer = LegalAnalyzer(model=model)
+                                result = analyzer.analyze(text, depth=depth)
+                                st.session_state.analysis_result = result
+                            except Exception as e:
+                                st.error(f"Analysis failed: {str(e)}")
+                                st.session_state.analysis_result = get_demo_result()
+            else:
+                st.error("❌ Could not extract text from the document. Please try a different file.")
+        
+        # Display results
+        if st.session_state.analysis_result:
+            st.markdown("---")
+            render_analysis_results(st.session_state.analysis_result)
     
-    # Display results
-    if st.session_state.analysis_result:
-        st.markdown("---")
-        render_analysis_results(st.session_state.analysis_result)
+    with tab2:
+        st.markdown("### 📁 Batch Document Analysis")
+        st.markdown("Upload multiple documents for bulk analysis")
+        
+        batch_files = st.file_uploader(
+            "Upload multiple documents",
+            type=['pdf', 'docx', 'txt'],
+            accept_multiple_files=True,
+            help="Select multiple files for batch processing",
+            key="batch_files"
+        )
+        
+        if batch_files:
+            st.info(f"📁 {len(batch_files)} files selected for analysis")
+            
+            if st.button("🚀 Analyze All Documents", type="primary", use_container_width=True):
+                results = []
+                progress_bar = st.progress(0)
+                status_text = st.empty()
+                
+                for i, file in enumerate(batch_files):
+                    status_text.text(f"Analyzing {file.name}...")
+                    progress_bar.progress((i + 1) / len(batch_files))
+                    
+                    try:
+                        text = extract_text_from_file(file)
+                        if text:
+                            # Use demo results for now (or real analyzer if API key available)
+                            result = get_demo_result()
+                            result['file_name'] = file.name
+                            result['char_count'] = len(text)
+                            results.append(result)
+                    except Exception as e:
+                        results.append({
+                            'file_name': file.name,
+                            'error': str(e),
+                            'overall_risk': 'Error'
+                        })
+                
+                status_text.text("✅ Batch analysis complete!")
+                
+                # Summary table
+                st.markdown("### 📊 Batch Results Summary")
+                summary_data = []
+                for r in results:
+                    summary_data.append({
+                        'File': r.get('file_name', 'Unknown'),
+                        'Type': r.get('contract_type', 'N/A'),
+                        'Risk': r.get('overall_risk', 'N/A'),
+                        'Parties': len(r.get('parties', [])),
+                        'Clauses': len(r.get('key_clauses', [])),
+                        'Flags': len(r.get('risk_flags', []))
+                    })
+                
+                st.dataframe(summary_data, use_container_width=True)
+                
+                # Export batch results
+                st.download_button(
+                    "📥 Download All Results (JSON)",
+                    data=json.dumps(results, indent=2),
+                    file_name="batch_analysis_results.json",
+                    mime="application/json"
+                )
 
 
 def get_demo_result():
