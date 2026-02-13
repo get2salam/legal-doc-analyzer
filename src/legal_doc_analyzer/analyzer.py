@@ -14,6 +14,7 @@ from typing import Optional
 from .extractors import ClauseExtractor, EntityExtractor, RiskDetector
 from .models import AnalysisResult, Clause, ClauseType, Entity, Risk
 from .parsers import ParsedDocument, get_parser
+from .preprocessing import TextPreprocessor
 
 
 class LegalAnalyzer:
@@ -43,10 +44,12 @@ class LegalAnalyzer:
         clause_extractor: Optional[ClauseExtractor] = None,
         entity_extractor: Optional[EntityExtractor] = None,
         risk_detector: Optional[RiskDetector] = None,
+        preprocessor: Optional[TextPreprocessor] = None,
     ) -> None:
         self._clause_extractor = clause_extractor or ClauseExtractor()
         self._entity_extractor = entity_extractor or EntityExtractor()
         self._risk_detector = risk_detector or RiskDetector()
+        self._preprocessor = preprocessor or TextPreprocessor()
 
     # ------------------------------------------------------------------
     # Public API
@@ -86,6 +89,9 @@ class LegalAnalyzer:
         # Run risk detection
         risks = self._risk_detector.analyze(clauses, full_text)
 
+        # Run readability analysis via preprocessor
+        readability = self._preprocessor.analyze_readability(full_text)
+
         # Generate summary
         summary = self._generate_summary(parsed, clauses, entities, risks)
 
@@ -102,6 +108,7 @@ class LegalAnalyzer:
                 "clause_count": len(clauses),
                 "entity_count": len(entities),
                 "risk_count": len(risks),
+                "readability": readability.to_dict(),
             },
             raw_text=full_text,
         )
