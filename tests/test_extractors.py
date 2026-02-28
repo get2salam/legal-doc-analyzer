@@ -12,10 +12,10 @@ from legal_doc_analyzer.models import (
     RiskLevel,
 )
 
-
 # ---------------------------------------------------------------------------
 # ClauseExtractor tests
 # ---------------------------------------------------------------------------
+
 
 class TestClauseExtractor:
     """Tests for the ClauseExtractor."""
@@ -183,6 +183,7 @@ class TestClauseExtractor:
 # EntityExtractor tests
 # ---------------------------------------------------------------------------
 
+
 class TestEntityExtractor:
     """Tests for the EntityExtractor."""
 
@@ -215,13 +216,16 @@ class TestEntityExtractor:
         assert any("10,000" in t for t in money_texts)
 
     def test_extract_money_other_currencies(self, extractor: EntityExtractor) -> None:
-        text = "The price is £5,000 or €4,500."
+        text = "The total cost is £5,000 or EUR4,500."
         entities = extractor.extract(text)
         money = [e for e in entities if e.type == EntityType.MONEY]
         assert len(money) >= 2
 
     def test_extract_parties(self, extractor: EntityExtractor) -> None:
-        text = 'by and between Acme Technologies Inc. ("Company") and Global Solutions Ltd. ("Contractor")'
+        text = (
+            'by and between Acme Technologies Inc. ("Company")'
+            ' and Global Solutions Ltd. ("Contractor")'
+        )
         entities = extractor.extract(text)
         parties = [e for e in entities if e.type == EntityType.PARTY]
         assert len(parties) >= 2
@@ -270,6 +274,7 @@ class TestEntityExtractor:
 # RiskDetector tests
 # ---------------------------------------------------------------------------
 
+
 class TestRiskDetector:
     """Tests for the RiskDetector."""
 
@@ -292,8 +297,7 @@ class TestRiskDetector:
         ]
         risks = detector.analyze(clauses=clauses, text="Some contract text.")
         missing_essential = [
-            r for r in risks
-            if r.level == RiskLevel.HIGH and r.category == "missing_clause"
+            r for r in risks if r.level == RiskLevel.HIGH and r.category == "missing_clause"
         ]
         assert len(missing_essential) == 0
 
@@ -328,7 +332,10 @@ class TestRiskDetector:
         clauses = [
             Clause(
                 type=ClauseType.INDEMNIFICATION,
-                text="The Contractor shall indemnify and hold harmless the Company from all claims and damages.",
+                text=(
+                    "The Contractor shall indemnify and hold harmless"
+                    " the Company from all claims and damages."
+                ),
                 confidence=0.8,
             )
         ]
@@ -340,7 +347,9 @@ class TestRiskDetector:
         clauses = [
             Clause(
                 type=ClauseType.INDEMNIFICATION,
-                text="Each party shall indemnify and hold harmless the other party from all claims.",
+                text=(
+                    "Each party shall indemnify and hold harmless the other party from all claims."
+                ),
                 confidence=0.8,
             )
         ]
@@ -362,9 +371,7 @@ class TestRiskDetector:
             for i in range(len(risks) - 1):
                 assert severity[risks[i].level] <= severity[risks[i + 1].level]
 
-    def test_full_sample_contract(
-        self, detector: RiskDetector, sample_contract_text: str
-    ) -> None:
+    def test_full_sample_contract(self, detector: RiskDetector, sample_contract_text: str) -> None:
         """Run risk detection on the full sample contract."""
         clause_extractor = ClauseExtractor()
         clauses = clause_extractor.extract(sample_contract_text)

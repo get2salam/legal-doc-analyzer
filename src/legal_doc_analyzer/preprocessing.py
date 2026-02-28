@@ -22,12 +22,11 @@ import re
 import unicodedata
 from collections import Counter
 from dataclasses import dataclass, field
-from typing import Optional
-
 
 # ---------------------------------------------------------------------------
 # Readability Result
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class ReadabilityResult:
@@ -103,60 +102,254 @@ class ReadabilityResult:
 # ---------------------------------------------------------------------------
 
 # Common legal jargon terms used to compute jargon density
-LEGAL_JARGON: frozenset[str] = frozenset({
-    "herein", "hereinafter", "hereinbefore", "hereinabove", "hereinbelow",
-    "hereof", "hereto", "hereunder", "hereby", "herewith",
-    "thereof", "therein", "thereto", "thereunder", "thereafter", "thereby",
-    "therewith", "therefrom",
-    "whereas", "wherefore", "wherein", "whereby", "notwithstanding",
-    "aforementioned", "aforesaid", "foregoing", "forthwith",
-    "indemnify", "indemnification", "indemnified",
-    "liquidated", "stipulated", "adjudicated",
-    "tort", "tortious", "tortfeasor",
-    "plaintiff", "defendant", "appellant", "respondent", "petitioner",
-    "claimant", "complainant",
-    "estoppel", "laches", "subpoena", "mandamus", "certiorari",
-    "habeas", "corpus", "prima", "facie",
-    "jurisdiction", "jurisdictional", "adjudication",
-    "pursuant", "preamble", "proviso", "codicil",
-    "rescission", "rescind", "revocation", "revoke",
-    "assignee", "assignor", "mortgagee", "mortgagor",
-    "lessee", "lessor", "licensee", "licensor",
-    "obligor", "obligee", "surety", "guarantor",
-    "abatement", "acquittal", "adjournment", "affidavit",
-    "allegation", "arbitration", "bailment", "chattel",
-    "cognizable", "counterclaim", "decedent", "deposition",
-    "easement", "encumbrance", "escrow", "fiduciary",
-    "garnishment", "hereditament", "injunction", "interpleader",
-    "lien", "malfeasance", "misfeasance", "nonfeasance",
-    "novation", "pendente", "lite", "quorum",
-    "recusal", "remand", "replevin", "stipulation",
-    "subrogation", "usufruct", "venue", "waiver",
-    "severability", "severance",
-    "covenant", "covenants",
-    "inure", "supersede", "supersedes",
-    "counterpart", "counterparts",
-    "mutatis", "mutandis",
-    "inter", "alia", "ipso", "facto",
-    "bona", "fide", "mala", "fides",
-    "pro", "rata", "quantum", "meruit",
-})
+LEGAL_JARGON: frozenset[str] = frozenset(
+    {
+        "herein",
+        "hereinafter",
+        "hereinbefore",
+        "hereinabove",
+        "hereinbelow",
+        "hereof",
+        "hereto",
+        "hereunder",
+        "hereby",
+        "herewith",
+        "thereof",
+        "therein",
+        "thereto",
+        "thereunder",
+        "thereafter",
+        "thereby",
+        "therewith",
+        "therefrom",
+        "whereas",
+        "wherefore",
+        "wherein",
+        "whereby",
+        "notwithstanding",
+        "aforementioned",
+        "aforesaid",
+        "foregoing",
+        "forthwith",
+        "indemnify",
+        "indemnification",
+        "indemnified",
+        "liquidated",
+        "stipulated",
+        "adjudicated",
+        "tort",
+        "tortious",
+        "tortfeasor",
+        "plaintiff",
+        "defendant",
+        "appellant",
+        "respondent",
+        "petitioner",
+        "claimant",
+        "complainant",
+        "estoppel",
+        "laches",
+        "subpoena",
+        "mandamus",
+        "certiorari",
+        "habeas",
+        "corpus",
+        "prima",
+        "facie",
+        "jurisdiction",
+        "jurisdictional",
+        "adjudication",
+        "pursuant",
+        "preamble",
+        "proviso",
+        "codicil",
+        "rescission",
+        "rescind",
+        "revocation",
+        "revoke",
+        "assignee",
+        "assignor",
+        "mortgagee",
+        "mortgagor",
+        "lessee",
+        "lessor",
+        "licensee",
+        "licensor",
+        "obligor",
+        "obligee",
+        "surety",
+        "guarantor",
+        "abatement",
+        "acquittal",
+        "adjournment",
+        "affidavit",
+        "allegation",
+        "arbitration",
+        "bailment",
+        "chattel",
+        "cognizable",
+        "counterclaim",
+        "decedent",
+        "deposition",
+        "easement",
+        "encumbrance",
+        "escrow",
+        "fiduciary",
+        "garnishment",
+        "hereditament",
+        "injunction",
+        "interpleader",
+        "lien",
+        "malfeasance",
+        "misfeasance",
+        "nonfeasance",
+        "novation",
+        "pendente",
+        "lite",
+        "quorum",
+        "recusal",
+        "remand",
+        "replevin",
+        "stipulation",
+        "subrogation",
+        "usufruct",
+        "venue",
+        "waiver",
+        "severability",
+        "severance",
+        "covenant",
+        "covenants",
+        "inure",
+        "supersede",
+        "supersedes",
+        "counterpart",
+        "counterparts",
+        "mutatis",
+        "mutandis",
+        "inter",
+        "alia",
+        "ipso",
+        "facto",
+        "bona",
+        "fide",
+        "mala",
+        "fides",
+        "pro",
+        "rata",
+        "quantum",
+        "meruit",
+    }
+)
 
 # English stopwords for term frequency analysis
-STOP_WORDS: frozenset[str] = frozenset({
-    "a", "an", "the", "and", "or", "but", "in", "on", "at", "to", "for",
-    "of", "with", "by", "from", "as", "is", "was", "are", "were", "be",
-    "been", "being", "have", "has", "had", "do", "does", "did", "will",
-    "would", "could", "should", "may", "might", "shall", "can", "must",
-    "not", "no", "nor", "so", "if", "then", "than", "that", "this",
-    "these", "those", "it", "its", "he", "she", "they", "them", "their",
-    "his", "her", "our", "your", "we", "you", "who", "whom", "which",
-    "what", "where", "when", "how", "all", "each", "every", "both",
-    "few", "more", "most", "other", "some", "such", "any", "only",
-    "own", "same", "too", "very", "just", "about", "above", "after",
-    "again", "also", "because", "before", "between", "during", "into",
-    "through", "under", "until", "up", "out", "over", "here", "there",
-})
+STOP_WORDS: frozenset[str] = frozenset(
+    {
+        "a",
+        "an",
+        "the",
+        "and",
+        "or",
+        "but",
+        "in",
+        "on",
+        "at",
+        "to",
+        "for",
+        "of",
+        "with",
+        "by",
+        "from",
+        "as",
+        "is",
+        "was",
+        "are",
+        "were",
+        "be",
+        "been",
+        "being",
+        "have",
+        "has",
+        "had",
+        "do",
+        "does",
+        "did",
+        "will",
+        "would",
+        "could",
+        "should",
+        "may",
+        "might",
+        "shall",
+        "can",
+        "must",
+        "not",
+        "no",
+        "nor",
+        "so",
+        "if",
+        "then",
+        "than",
+        "that",
+        "this",
+        "these",
+        "those",
+        "it",
+        "its",
+        "he",
+        "she",
+        "they",
+        "them",
+        "their",
+        "his",
+        "her",
+        "our",
+        "your",
+        "we",
+        "you",
+        "who",
+        "whom",
+        "which",
+        "what",
+        "where",
+        "when",
+        "how",
+        "all",
+        "each",
+        "every",
+        "both",
+        "few",
+        "more",
+        "most",
+        "other",
+        "some",
+        "such",
+        "any",
+        "only",
+        "own",
+        "same",
+        "too",
+        "very",
+        "just",
+        "about",
+        "above",
+        "after",
+        "again",
+        "also",
+        "because",
+        "before",
+        "between",
+        "during",
+        "into",
+        "through",
+        "under",
+        "until",
+        "up",
+        "out",
+        "over",
+        "here",
+        "there",
+    }
+)
 
 # Regex patterns for OCR artifact cleanup
 _OCR_ARTIFACT_PATTERNS: list[tuple[re.Pattern, str]] = [
@@ -176,33 +369,34 @@ _OCR_ARTIFACT_PATTERNS: list[tuple[re.Pattern, str]] = [
 _LEGAL_ABBREVIATIONS: dict[str, str] = {
     r"\bw/o\b": "without",
     r"\bw/\b": "with",
-    r"\bincl\.\b": "including",
-    r"\bexcl\.\b": "excluding",
-    r"\bapprox\.\b": "approximately",
+    r"\bincl\.": "including",
+    r"\bexcl\.": "excluding",
+    r"\bapprox\.": "approximately",
     r"\bet\s+al\.?\b": "et al.",
-    r"\bi\.e\.\b": "i.e.",
-    r"\be\.g\.\b": "e.g.",
+    r"\bi\.e\.": "i.e.",
+    r"\be\.g\.": "e.g.",
     r"\bvs\.?\b": "versus",
-    r"\bv\.\b": "versus",
-    r"\bno\.\b": "number",
-    r"\bpara\.\b": "paragraph",
-    r"\bsec\.\b": "section",
-    r"\bart\.\b": "article",
-    r"\bcl\.\b": "clause",
-    r"\bsched\.\b": "schedule",
-    r"\bex\.\b": "exhibit",
-    r"\bapp\.\b": "appendix",
-    r"\bamdt\.\b": "amendment",
+    r"\bv\.": "versus",
+    r"\bno\.": "number",
+    r"\bpara\.": "paragraph",
+    r"\bsec\.": "section",
+    r"\bart\.": "article",
+    r"\bcl\.": "clause",
+    r"\bsched\.": "schedule",
+    r"\bex\.": "exhibit",
+    r"\bapp\.": "appendix",
+    r"\bamdt\.": "amendment",
     r"\baff't\b": "affidavit",
-    r"\bdist\.\b": "district",
-    r"\bct\.\b": "court",
-    r"\bjudg\.\b": "judgment",
+    r"\bdist\.": "district",
+    r"\bct\.": "court",
+    r"\bjudg\.": "judgment",
 }
 
 
 # ---------------------------------------------------------------------------
 # Syllable Counter
 # ---------------------------------------------------------------------------
+
 
 def count_syllables(word: str) -> int:
     """Estimate syllable count for an English word.
@@ -259,6 +453,7 @@ def count_syllables(word: str) -> int:
 # ---------------------------------------------------------------------------
 # Text Preprocessor
 # ---------------------------------------------------------------------------
+
 
 class TextPreprocessor:
     """Clean and normalize legal document text.
@@ -487,11 +682,7 @@ class TextPreprocessor:
         avg_syllables = total_syllables / total_words
 
         # Flesch-Kincaid Grade Level
-        fk_grade = (
-            0.39 * avg_sentence_length
-            + 11.8 * avg_syllables
-            - 15.59
-        )
+        fk_grade = 0.39 * avg_sentence_length + 11.8 * avg_syllables - 15.59
 
         # Coleman-Liau Index
         # L = avg letters per 100 words, S = avg sentences per 100 words
@@ -500,11 +691,7 @@ class TextPreprocessor:
         coleman_liau = 0.0588 * l_score - 0.296 * s_score - 15.8
 
         # Automated Readability Index
-        ari = (
-            4.71 * (total_chars / total_words)
-            + 0.5 * (total_words / total_sentences)
-            - 21.43
-        )
+        ari = 4.71 * (total_chars / total_words) + 0.5 * (total_words / total_sentences) - 21.43
 
         # Term frequencies (top 20 non-stopword terms)
         freqs = self.term_frequencies(cleaned)
@@ -529,6 +716,7 @@ class TextPreprocessor:
 # ---------------------------------------------------------------------------
 # Document Comparison
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class ComparisonResult:
@@ -565,7 +753,7 @@ class ComparisonResult:
 def compare_documents(
     text_a: str,
     text_b: str,
-    preprocessor: Optional[TextPreprocessor] = None,
+    preprocessor: TextPreprocessor | None = None,
 ) -> ComparisonResult:
     """Compare two documents using TF-IDF cosine similarity and Jaccard.
 
@@ -609,8 +797,8 @@ def compare_documents(
         a_val = _log_tf(freq_a.get(term, 0))
         b_val = _log_tf(freq_b.get(term, 0))
         dot_product += a_val * b_val
-        norm_a += a_val ** 2
-        norm_b += b_val ** 2
+        norm_a += a_val**2
+        norm_b += b_val**2
 
     cosine = 0.0
     if norm_a > 0 and norm_b > 0:
