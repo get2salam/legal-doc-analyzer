@@ -61,10 +61,16 @@ def main() -> None:
 
 @main.command()
 @click.argument("file", type=click.Path(exists=True, path_type=Path))
-@click.option("--output", "-o", type=click.Choice(["rich", "json"]), default="rich",
-              help="Output format.")
-@click.option("--save", "-s", type=click.Path(path_type=Path), default=None,
-              help="Save results to a JSON file.")
+@click.option(
+    "--output", "-o", type=click.Choice(["rich", "json"]), default="rich", help="Output format."
+)
+@click.option(
+    "--save",
+    "-s",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Save results to a JSON file.",
+)
 def analyze(file: Path, output: str, save: Path | None) -> None:
     """Run full analysis on a legal document.
 
@@ -94,10 +100,15 @@ def analyze(file: Path, output: str, save: Path | None) -> None:
 
 @main.command()
 @click.argument("file", type=click.Path(exists=True, path_type=Path))
-@click.option("--types", "-t", default=None,
-              help="Comma-separated clause types (e.g., indemnification,termination).")
-@click.option("--output", "-o", type=click.Choice(["rich", "json"]), default="rich",
-              help="Output format.")
+@click.option(
+    "--types",
+    "-t",
+    default=None,
+    help="Comma-separated clause types (e.g., indemnification,termination).",
+)
+@click.option(
+    "--output", "-o", type=click.Choice(["rich", "json"]), default="rich", help="Output format."
+)
 def extract(file: Path, types: str | None, output: str) -> None:
     """Extract clauses from a legal document.
 
@@ -123,8 +134,13 @@ def extract(file: Path, types: str | None, output: str) -> None:
 
 @main.command()
 @click.argument("file", type=click.Path(exists=True, path_type=Path))
-@click.option("--format", "fmt", type=click.Choice(["text", "bullet-points", "json"]),
-              default="text", help="Summary format.")
+@click.option(
+    "--format",
+    "fmt",
+    type=click.Choice(["text", "bullet-points", "json"]),
+    default="text",
+    help="Summary format.",
+)
 def summarize(file: Path, fmt: str) -> None:
     """Generate a summary of a legal document.
 
@@ -140,19 +156,26 @@ def summarize(file: Path, fmt: str) -> None:
             sys.exit(1)
 
     if fmt == "json":
-        click.echo(json.dumps({
-            "filename": result.filename,
-            "summary": result.summary,
-            "risk_score": result.risk_score,
-            "clause_count": len(result.clauses),
-            "entity_count": len(result.entities),
-        }, indent=2))
+        click.echo(
+            json.dumps(
+                {
+                    "filename": result.filename,
+                    "summary": result.summary,
+                    "risk_score": result.risk_score,
+                    "clause_count": len(result.clauses),
+                    "entity_count": len(result.entities),
+                },
+                indent=2,
+            )
+        )
     elif fmt == "bullet-points":
-        console.print(Panel(
-            result.summary,
-            title=f"📄 Summary: {result.filename}",
-            border_style="blue",
-        ))
+        console.print(
+            Panel(
+                result.summary,
+                title=f"📄 Summary: {result.filename}",
+                border_style="blue",
+            )
+        )
     else:
         console.print()
         console.print(result.summary)
@@ -163,22 +186,24 @@ def summarize(file: Path, fmt: str) -> None:
 # Rich rendering helpers
 # ------------------------------------------------------------------
 
+
 def _render_analysis(result) -> None:
     """Render a full AnalysisResult with rich formatting."""
-    from .models import EntityType
 
     console.print()
 
     # Header
-    console.print(Panel(
-        f"[bold]{result.filename}[/]\n"
-        f"Pages: {result.metadata.get('page_count', '?')} | "
-        f"Clauses: {len(result.clauses)} | "
-        f"Entities: {len(result.entities)} | "
-        f"Risks: {len(result.risks)}",
-        title="📄 Legal Document Analysis",
-        border_style="blue",
-    ))
+    console.print(
+        Panel(
+            f"[bold]{result.filename}[/]\n"
+            f"Pages: {result.metadata.get('page_count', '?')} | "
+            f"Clauses: {len(result.clauses)} | "
+            f"Entities: {len(result.entities)} | "
+            f"Risks: {len(result.risks)}",
+            title="📄 Legal Document Analysis",
+            border_style="blue",
+        )
+    )
 
     # Summary
     console.print(Panel(result.summary, title="Summary", border_style="dim"))

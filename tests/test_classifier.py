@@ -26,7 +26,6 @@ from legal_doc_analyzer.classifier import (
     stratified_k_fold,
 )
 
-
 # ---------------------------------------------------------------------------
 # Fixtures: Synthetic corpus of legal document snippets
 # ---------------------------------------------------------------------------
@@ -147,6 +146,7 @@ def small_corpus():
 # TfidfVectorizer Tests
 # ---------------------------------------------------------------------------
 
+
 class TestTfidfVectorizer:
     """Tests for TF-IDF vectorization."""
 
@@ -175,7 +175,7 @@ class TestTfidfVectorizer:
         vectors = vec.fit_transform(docs)
         for v in vectors:
             if v:  # Skip empty vectors
-                norm = math.sqrt(sum(w ** 2 for w in v.values()))
+                norm = math.sqrt(sum(w**2 for w in v.values()))
                 assert abs(norm - 1.0) < 1e-6, f"L2 norm should be 1.0, got {norm}"
 
     def test_fit_transform_equals_fit_then_transform(self, corpus):
@@ -188,7 +188,7 @@ class TestTfidfVectorizer:
         separate = vec2.transform(docs)
 
         assert len(combined) == len(separate)
-        for c, s in zip(combined, separate):
+        for c, s in zip(combined, separate, strict=False):
             assert set(c.keys()) == set(s.keys())
             for key in c:
                 assert abs(c[key] - s[key]) < 1e-10
@@ -288,6 +288,7 @@ class TestTfidfVectorizer:
 # NaiveBayesClassifier Tests
 # ---------------------------------------------------------------------------
 
+
 class TestNaiveBayesClassifier:
     """Tests for Multinomial Naive Bayes."""
 
@@ -338,7 +339,7 @@ class TestNaiveBayesClassifier:
         nb = NaiveBayesClassifier()
         nb.fit(vectors, labels)
         predictions = nb.predict(vectors)
-        correct = sum(1 for t, p in zip(labels, predictions) if t == p)
+        correct = sum(1 for t, p in zip(labels, predictions, strict=False) if t == p)
         accuracy = correct / len(labels)
         assert accuracy > 0.5, f"Training accuracy should be > 50%, got {accuracy:.2%}"
 
@@ -356,7 +357,7 @@ class TestNaiveBayesClassifier:
         # With heavy smoothing, probabilities should be more uniform
         probas1 = nb1.predict_proba(vectors)
         probas2 = nb2.predict_proba(vectors)
-        for p1, p2 in zip(probas1, probas2):
+        for p1, p2 in zip(probas1, probas2, strict=False):
             max1 = max(p1.values())
             max2 = max(p2.values())
             # Heavy smoothing → less confident predictions
@@ -423,6 +424,7 @@ class TestNaiveBayesClassifier:
 # ---------------------------------------------------------------------------
 # Evaluation Metrics Tests
 # ---------------------------------------------------------------------------
+
 
 class TestMetrics:
     """Tests for compute_metrics."""
@@ -511,6 +513,7 @@ class TestMetrics:
 # Cross-Validation Tests
 # ---------------------------------------------------------------------------
 
+
 class TestCrossValidation:
     """Tests for stratified k-fold cross-validation."""
 
@@ -551,7 +554,7 @@ class TestCrossValidation:
         labels = ["a"] * 10 + ["b"] * 10
         folds1 = stratified_k_fold(labels, k=5, seed=42)
         folds2 = stratified_k_fold(labels, k=5, seed=42)
-        for (t1, v1), (t2, v2) in zip(folds1, folds2):
+        for (t1, v1), (t2, v2) in zip(folds1, folds2, strict=False):
             assert t1 == t2
             assert v1 == v2
 
@@ -560,15 +563,15 @@ class TestCrossValidation:
         folds1 = stratified_k_fold(labels, k=5, seed=42)
         folds2 = stratified_k_fold(labels, k=5, seed=99)
         # At least one fold should differ
-        differs = any(
-            set(t1) != set(t2) for (t1, _), (t2, _) in zip(folds1, folds2)
-        )
+        differs = any(set(t1) != set(t2) for (t1, _), (t2, _) in zip(folds1, folds2, strict=False))
         assert differs
 
     def test_cross_validate_returns_k_results(self, corpus):
         docs, labels = corpus
         results = cross_validate(
-            docs, labels, k=3,
+            docs,
+            labels,
+            k=3,
             vectorizer_kwargs={"min_df": 1},
         )
         assert len(results) == 3
@@ -578,7 +581,9 @@ class TestCrossValidation:
         """With distinct document types, CV accuracy should be decent."""
         docs, labels = corpus
         results = cross_validate(
-            docs, labels, k=3,
+            docs,
+            labels,
+            k=3,
             vectorizer_kwargs={"min_df": 1, "ngram_range": (1, 2)},
         )
         avg_accuracy = sum(r.accuracy for r in results) / len(results)
@@ -589,6 +594,7 @@ class TestCrossValidation:
 # ---------------------------------------------------------------------------
 # DocumentClassifier (High-Level API) Tests
 # ---------------------------------------------------------------------------
+
 
 class TestDocumentClassifier:
     """Tests for the high-level DocumentClassifier."""
@@ -633,10 +639,12 @@ class TestDocumentClassifier:
         docs, labels = corpus
         clf = DocumentClassifier(vectorizer_kwargs={"min_df": 1})
         clf.train(docs, labels)
-        results = clf.classify_batch([
-            "This agreement between the parties...",
-            "The court holds that the motion is denied...",
-        ])
+        results = clf.classify_batch(
+            [
+                "This agreement between the parties...",
+                "The court holds that the motion is denied...",
+            ]
+        )
         assert len(results) == 2
         assert all(isinstance(r, ClassificationResult) for r in results)
 
@@ -743,6 +751,7 @@ class TestDocumentClassifier:
 # DocumentType Enum Tests
 # ---------------------------------------------------------------------------
 
+
 class TestDocumentType:
     """Tests for the DocumentType enum."""
 
@@ -765,6 +774,7 @@ class TestDocumentType:
 # ---------------------------------------------------------------------------
 # Integration Tests
 # ---------------------------------------------------------------------------
+
 
 class TestIntegration:
     """End-to-end integration tests."""
@@ -797,9 +807,7 @@ class TestIntegration:
         results = clf.classify_batch(new_docs)
 
         # At least some should be correct
-        correct = sum(
-            1 for r, e in zip(results, expected) if r.predicted_class == e
-        )
+        correct = sum(1 for r, e in zip(results, expected, strict=False) if r.predicted_class == e)
         assert correct >= 2, f"Expected at least 2/4 correct, got {correct}/4"
 
     def test_model_persistence_workflow(self, corpus):
@@ -813,7 +821,7 @@ class TestIntegration:
             clf.save(path)
 
             loaded = DocumentClassifier.load(path)
-            for doc, expected_label in zip(docs[:4], labels[:4]):
+            for doc, _expected_label in zip(docs[:4], labels[:4], strict=False):
                 result = loaded.classify(doc)
                 assert result.predicted_class in loaded.classes
 

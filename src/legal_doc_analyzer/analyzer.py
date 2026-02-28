@@ -7,9 +7,7 @@ detection, and returns a comprehensive ``AnalysisResult``.
 
 from __future__ import annotations
 
-import textwrap
 from pathlib import Path
-from typing import Optional
 
 from .extractors import ClauseExtractor, EntityExtractor, RiskDetector
 from .models import AnalysisResult, Clause, ClauseType, Entity, Risk
@@ -41,10 +39,10 @@ class LegalAnalyzer:
 
     def __init__(
         self,
-        clause_extractor: Optional[ClauseExtractor] = None,
-        entity_extractor: Optional[EntityExtractor] = None,
-        risk_detector: Optional[RiskDetector] = None,
-        preprocessor: Optional[TextPreprocessor] = None,
+        clause_extractor: ClauseExtractor | None = None,
+        entity_extractor: EntityExtractor | None = None,
+        risk_detector: RiskDetector | None = None,
+        preprocessor: TextPreprocessor | None = None,
     ) -> None:
         self._clause_extractor = clause_extractor or ClauseExtractor()
         self._entity_extractor = entity_extractor or EntityExtractor()
@@ -116,7 +114,7 @@ class LegalAnalyzer:
     def extract_clauses(
         self,
         file_path: str | Path,
-        types: Optional[list[str]] = None,
+        types: list[str] | None = None,
     ) -> list[Clause]:
         """Extract clauses from a document, optionally filtered by type.
 

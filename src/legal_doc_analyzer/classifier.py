@@ -1,7 +1,7 @@
 """Document classification pipeline with TF-IDF features and Naive Bayes.
 
 Provides a complete ML pipeline for classifying legal documents by type
-(contract, brief, statute, opinion, etc.) using pure Python — no sklearn
+(contract, brief, statute, opinion, etc.) using pure Python â€” no sklearn
 or numpy required.
 
 Features:
@@ -26,12 +26,11 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Optional
-
 
 # ---------------------------------------------------------------------------
 # Document Types
 # ---------------------------------------------------------------------------
+
 
 class DocumentType(str, Enum):
     """Standard legal document categories."""
@@ -56,20 +55,114 @@ class DocumentType(str, Enum):
 
 _WORD_RE = re.compile(r"\b[a-zA-Z][a-zA-Z'-]*[a-zA-Z]\b|\b[a-zA-Z]\b")
 
-_STOP_WORDS: frozenset[str] = frozenset({
-    "a", "an", "the", "and", "or", "but", "in", "on", "at", "to", "for",
-    "of", "with", "by", "from", "as", "is", "was", "are", "were", "be",
-    "been", "being", "have", "has", "had", "do", "does", "did", "will",
-    "would", "could", "should", "may", "might", "shall", "can", "must",
-    "not", "no", "nor", "so", "if", "then", "than", "that", "this",
-    "these", "those", "it", "its", "he", "she", "they", "them", "their",
-    "his", "her", "our", "your", "we", "you", "who", "whom", "which",
-    "what", "where", "when", "how", "all", "each", "every", "both",
-    "few", "more", "most", "other", "some", "such", "any", "only",
-    "own", "same", "too", "very", "just", "about", "above", "after",
-    "again", "also", "because", "before", "between", "during", "into",
-    "through", "under", "until", "up", "out", "over", "here", "there",
-})
+_STOP_WORDS: frozenset[str] = frozenset(
+    {
+        "a",
+        "an",
+        "the",
+        "and",
+        "or",
+        "but",
+        "in",
+        "on",
+        "at",
+        "to",
+        "for",
+        "of",
+        "with",
+        "by",
+        "from",
+        "as",
+        "is",
+        "was",
+        "are",
+        "were",
+        "be",
+        "been",
+        "being",
+        "have",
+        "has",
+        "had",
+        "do",
+        "does",
+        "did",
+        "will",
+        "would",
+        "could",
+        "should",
+        "may",
+        "might",
+        "shall",
+        "can",
+        "must",
+        "not",
+        "no",
+        "nor",
+        "so",
+        "if",
+        "then",
+        "than",
+        "that",
+        "this",
+        "these",
+        "those",
+        "it",
+        "its",
+        "he",
+        "she",
+        "they",
+        "them",
+        "their",
+        "his",
+        "her",
+        "our",
+        "your",
+        "we",
+        "you",
+        "who",
+        "whom",
+        "which",
+        "what",
+        "where",
+        "when",
+        "how",
+        "all",
+        "each",
+        "every",
+        "both",
+        "few",
+        "more",
+        "most",
+        "other",
+        "some",
+        "such",
+        "any",
+        "only",
+        "own",
+        "same",
+        "too",
+        "very",
+        "just",
+        "about",
+        "above",
+        "after",
+        "again",
+        "also",
+        "because",
+        "before",
+        "between",
+        "during",
+        "into",
+        "through",
+        "under",
+        "until",
+        "up",
+        "out",
+        "over",
+        "here",
+        "there",
+    }
+)
 
 
 def _tokenize(text: str) -> list[str]:
@@ -112,7 +205,7 @@ class TfidfVectorizer:
     idf_: dict[str, float] = field(default_factory=dict, repr=False)
     _num_docs: int = 0
 
-    def fit(self, documents: list[str]) -> "TfidfVectorizer":
+    def fit(self, documents: list[str]) -> TfidfVectorizer:
         """Learn vocabulary and IDF weights from a corpus.
 
         Args:
@@ -135,9 +228,7 @@ class TfidfVectorizer:
         # Prune by min/max document frequency
         max_df_abs = max(1, int(self.max_df_ratio * n_docs))
         pruned = {
-            term: df
-            for term, df in doc_freq.items()
-            if df >= self.min_df and df <= max_df_abs
+            term: df for term, df in doc_freq.items() if df >= self.min_df and df <= max_df_abs
         }
 
         # Select top features by frequency
@@ -149,7 +240,7 @@ class TfidfVectorizer:
 
         # Compute IDF: log((1 + N) / (1 + df)) + 1 (smooth IDF)
         self.idf_ = {}
-        for term, idx in self.vocabulary_.items():
+        for term, _idx in self.vocabulary_.items():
             df = doc_freq.get(term, 0)
             self.idf_[term] = math.log((1 + n_docs) / (1 + df)) + 1
 
@@ -187,7 +278,7 @@ class TfidfVectorizer:
                 vec[term] = weighted_tf * self.idf_.get(term, 0)
 
             # L2 normalization
-            norm = math.sqrt(sum(v ** 2 for v in vec.values())) or 1.0
+            norm = math.sqrt(sum(v**2 for v in vec.values())) or 1.0
             vec = {k: v / norm for k, v in vec.items()}
 
             vectors.append(vec)
@@ -227,7 +318,7 @@ class TfidfVectorizer:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "TfidfVectorizer":
+    def from_dict(cls, data: dict) -> TfidfVectorizer:
         """Deserialize vectorizer from a dictionary."""
         vec = cls(
             max_features=data["max_features"],
@@ -246,6 +337,7 @@ class TfidfVectorizer:
 # ---------------------------------------------------------------------------
 # Multinomial Naive Bayes
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class NaiveBayesClassifier:
@@ -270,7 +362,7 @@ class NaiveBayesClassifier:
         self,
         vectors: list[dict[str, float]],
         labels: list[str],
-    ) -> "NaiveBayesClassifier":
+    ) -> NaiveBayesClassifier:
         """Train the classifier on TF-IDF vectors and labels.
 
         Args:
@@ -296,7 +388,7 @@ class NaiveBayesClassifier:
 
         # Group vectors by class
         class_vectors: dict[str, list[dict[str, float]]] = defaultdict(list)
-        for vec, label in zip(vectors, labels):
+        for vec, label in zip(vectors, labels, strict=False):
             class_vectors[label].append(vec)
 
         self.classes_ = sorted(class_vectors.keys())
@@ -308,7 +400,8 @@ class NaiveBayesClassifier:
             self.class_log_prior_[cls] = math.log(len(class_vectors[cls]) / n_total)
 
         # Compute feature log probabilities per class
-        # P(feature|class) = (sum of feature weights in class + alpha) / (total weights in class + alpha * |V|)
+        # P(feature|class) = (sum of feature weights in class + alpha)
+        #     / (total weights in class + alpha * |V|)
         vocab_size = len(self._vocabulary)
         self.feature_log_prob_ = {}
 
@@ -418,17 +511,16 @@ class NaiveBayesClassifier:
         other_classes = [c for c in self.classes_ if c != class_name]
 
         if not other_classes:
-            return [(feat, prob) for feat, prob in sorted(
-                target_probs.items(), key=lambda x: x[1], reverse=True
-            )][:top_n]
+            return [
+                (feat, prob)
+                for feat, prob in sorted(target_probs.items(), key=lambda x: x[1], reverse=True)
+            ][:top_n]
 
         ratios: list[tuple[str, float]] = []
         for feat in self._vocabulary:
             target_lp = target_probs.get(feat, -20)
             # Average log prob across other classes
-            other_lps = [
-                self.feature_log_prob_[c].get(feat, -20) for c in other_classes
-            ]
+            other_lps = [self.feature_log_prob_[c].get(feat, -20) for c in other_classes]
             avg_other_lp = sum(other_lps) / len(other_lps)
             ratio = target_lp - avg_other_lp
             ratios.append((feat, round(ratio, 4)))
@@ -447,7 +539,7 @@ class NaiveBayesClassifier:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "NaiveBayesClassifier":
+    def from_dict(cls, data: dict) -> NaiveBayesClassifier:
         """Deserialize classifier from a dictionary."""
         nb = cls(alpha=data["alpha"])
         nb.classes_ = data["classes"]
@@ -460,6 +552,7 @@ class NaiveBayesClassifier:
 # ---------------------------------------------------------------------------
 # Evaluation Metrics
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class ClassificationMetrics:
@@ -513,8 +606,7 @@ class ClassificationMetrics:
             m = self.per_class[cls]
             s = self.support.get(cls, 0)
             lines.append(
-                f"{cls:<20} {m['precision']:>10.4f} {m['recall']:>10.4f} "
-                f"{m['f1']:>10.4f} {s:>10}"
+                f"{cls:<20} {m['precision']:>10.4f} {m['recall']:>10.4f} {m['f1']:>10.4f} {s:>10}"
             )
         return "\n".join(lines)
 
@@ -540,11 +632,11 @@ def compute_metrics(
 
     # Confusion matrix
     cm: dict[str, dict[str, int]] = {c: {c2: 0 for c2 in classes} for c in classes}
-    for true, pred in zip(y_true, y_pred):
+    for true, pred in zip(y_true, y_pred, strict=False):
         cm[true][pred] += 1
 
     # Accuracy
-    correct = sum(1 for t, p in zip(y_true, y_pred) if t == p)
+    correct = sum(1 for t, p in zip(y_true, y_pred, strict=False) if t == p)
     accuracy = correct / n if n > 0 else 0
 
     # Per-class metrics
@@ -558,11 +650,7 @@ def compute_metrics(
 
         precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
         recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-        f1 = (
-            2 * precision * recall / (precision + recall)
-            if (precision + recall) > 0
-            else 0.0
-        )
+        f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
 
         per_class[cls] = {
             "precision": precision,
@@ -598,6 +686,7 @@ def compute_metrics(
 # ---------------------------------------------------------------------------
 # Cross-Validation
 # ---------------------------------------------------------------------------
+
 
 def stratified_k_fold(
     labels: list[str],
@@ -648,8 +737,8 @@ def cross_validate(
     documents: list[str],
     labels: list[str],
     k: int = 5,
-    vectorizer_kwargs: Optional[dict] = None,
-    classifier_kwargs: Optional[dict] = None,
+    vectorizer_kwargs: dict | None = None,
+    classifier_kwargs: dict | None = None,
     seed: int = 42,
 ) -> list[ClassificationMetrics]:
     """Run stratified k-fold cross-validation.
@@ -699,6 +788,7 @@ def cross_validate(
 # Classification Pipeline (High-Level API)
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class ClassificationResult:
     """Result of classifying a single document."""
@@ -712,7 +802,8 @@ class ClassificationResult:
             "predicted_class": self.predicted_class,
             "confidence": round(self.confidence, 4),
             "probabilities": {
-                k: round(v, 4) for k, v in sorted(
+                k: round(v, 4)
+                for k, v in sorted(
                     self.probabilities.items(),
                     key=lambda x: x[1],
                     reverse=True,
@@ -749,13 +840,13 @@ class DocumentClassifier:
 
     def __init__(
         self,
-        vectorizer_kwargs: Optional[dict] = None,
-        classifier_kwargs: Optional[dict] = None,
+        vectorizer_kwargs: dict | None = None,
+        classifier_kwargs: dict | None = None,
     ) -> None:
         self._vec_kwargs = vectorizer_kwargs or {}
         self._cls_kwargs = classifier_kwargs or {}
-        self._vectorizer: Optional[TfidfVectorizer] = None
-        self._classifier: Optional[NaiveBayesClassifier] = None
+        self._vectorizer: TfidfVectorizer | None = None
+        self._classifier: NaiveBayesClassifier | None = None
         self._is_trained = False
 
     @property
@@ -839,11 +930,13 @@ class DocumentClassifier:
         results = []
         for proba in probas:
             predicted = max(proba, key=proba.get)  # type: ignore[arg-type]
-            results.append(ClassificationResult(
-                predicted_class=predicted,
-                confidence=proba[predicted],
-                probabilities=proba,
-            ))
+            results.append(
+                ClassificationResult(
+                    predicted_class=predicted,
+                    confidence=proba[predicted],
+                    probabilities=proba,
+                )
+            )
         return results
 
     def evaluate(
@@ -917,7 +1010,7 @@ class DocumentClassifier:
             json.dump(model_data, f, indent=2)
 
     @classmethod
-    def load(cls, path: str | Path) -> "DocumentClassifier":
+    def load(cls, path: str | Path) -> DocumentClassifier:
         """Load a trained model from a JSON file.
 
         Args:
@@ -926,7 +1019,7 @@ class DocumentClassifier:
         Returns:
             DocumentClassifier instance ready for prediction.
         """
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
 
         dc = cls(

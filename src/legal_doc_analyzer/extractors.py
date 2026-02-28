@@ -2,14 +2,13 @@
 
 Provides clause extraction, entity extraction, and risk detection using
 regex and keyword patterns. No heavy ML dependencies required for the
-basic version — works out of the box on any legal text.
+basic version â€” works out of the box on any legal text.
 """
 
 from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import Optional
 
 from .models import (
     Clause,
@@ -20,10 +19,10 @@ from .models import (
     RiskLevel,
 )
 
-
 # ---------------------------------------------------------------------------
 # Clause Extractor
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class _ClausePattern:
@@ -38,7 +37,7 @@ class _ClausePattern:
     min_keyword_hits: int = 2
 
 
-# Master pattern library — each entry defines how to detect a clause type
+# Master pattern library â€” each entry defines how to detect a clause type
 _CLAUSE_PATTERNS: list[_ClausePattern] = [
     _ClausePattern(
         clause_type=ClauseType.INDEMNIFICATION,
@@ -47,8 +46,15 @@ _CLAUSE_PATTERNS: list[_ClausePattern] = [
             r"hold\s+harmless",
         ],
         body_keywords=[
-            "indemnify", "indemnification", "hold harmless", "defend",
-            "losses", "damages", "claims", "third party", "liabilities",
+            "indemnify",
+            "indemnification",
+            "hold harmless",
+            "defend",
+            "losses",
+            "damages",
+            "claims",
+            "third party",
+            "liabilities",
             "costs and expenses",
         ],
         min_keyword_hits=2,
@@ -60,9 +66,15 @@ _CLAUSE_PATTERNS: list[_ClausePattern] = [
             r"term\s+and\s+termination",
         ],
         body_keywords=[
-            "terminate", "termination", "expiry", "expiration",
-            "upon written notice", "days notice", "right to terminate",
-            "material breach", "effective date of termination",
+            "terminate",
+            "termination",
+            "expiry",
+            "expiration",
+            "upon written notice",
+            "days notice",
+            "right to terminate",
+            "material breach",
+            "effective date of termination",
             "surviving provisions",
         ],
         min_keyword_hits=2,
@@ -75,9 +87,15 @@ _CLAUSE_PATTERNS: list[_ClausePattern] = [
             r"nda",
         ],
         body_keywords=[
-            "confidential", "confidentiality", "non-disclosure",
-            "proprietary information", "trade secret", "disclose",
-            "receiving party", "disclosing party", "confidential information",
+            "confidential",
+            "confidentiality",
+            "non-disclosure",
+            "proprietary information",
+            "trade secret",
+            "disclose",
+            "receiving party",
+            "disclosing party",
+            "confidential information",
         ],
         min_keyword_hits=2,
     ),
@@ -89,8 +107,13 @@ _CLAUSE_PATTERNS: list[_ClausePattern] = [
             r"restrictive\s+covenant",
         ],
         body_keywords=[
-            "non-compete", "non-competition", "compete", "competitive",
-            "restricted period", "restricted area", "competing business",
+            "non-compete",
+            "non-competition",
+            "compete",
+            "competitive",
+            "restricted period",
+            "restricted area",
+            "competing business",
         ],
         min_keyword_hits=2,
     ),
@@ -100,8 +123,14 @@ _CLAUSE_PATTERNS: list[_ClausePattern] = [
             r"non[\-\s]?solicitation",
         ],
         body_keywords=[
-            "non-solicitation", "solicit", "hire", "recruit",
-            "employees", "customers", "clients", "personnel",
+            "non-solicitation",
+            "solicit",
+            "hire",
+            "recruit",
+            "employees",
+            "customers",
+            "clients",
+            "personnel",
         ],
         min_keyword_hits=2,
     ),
@@ -113,9 +142,14 @@ _CLAUSE_PATTERNS: list[_ClausePattern] = [
             r"applicable\s+law",
         ],
         body_keywords=[
-            "governed by", "governing law", "laws of the state",
-            "laws of", "applicable law", "without regard to",
-            "conflict of law", "choice of law",
+            "governed by",
+            "governing law",
+            "laws of the state",
+            "laws of",
+            "applicable law",
+            "without regard to",
+            "conflict of law",
+            "choice of law",
         ],
         min_keyword_hits=1,
     ),
@@ -126,8 +160,12 @@ _CLAUSE_PATTERNS: list[_ClausePattern] = [
             r"venue",
         ],
         body_keywords=[
-            "jurisdiction", "venue", "courts of", "submit to",
-            "exclusive jurisdiction", "competent court",
+            "jurisdiction",
+            "venue",
+            "courts of",
+            "submit to",
+            "exclusive jurisdiction",
+            "competent court",
         ],
         min_keyword_hits=1,
     ),
@@ -137,10 +175,18 @@ _CLAUSE_PATTERNS: list[_ClausePattern] = [
             r"force\s+majeure",
         ],
         body_keywords=[
-            "force majeure", "act of god", "natural disaster",
-            "beyond reasonable control", "epidemic", "pandemic",
-            "war", "terrorism", "flood", "earthquake",
-            "unforeseeable", "unavoidable",
+            "force majeure",
+            "act of god",
+            "natural disaster",
+            "beyond reasonable control",
+            "epidemic",
+            "pandemic",
+            "war",
+            "terrorism",
+            "flood",
+            "earthquake",
+            "unforeseeable",
+            "unavoidable",
         ],
         min_keyword_hits=2,
     ),
@@ -153,9 +199,18 @@ _CLAUSE_PATTERNS: list[_ClausePattern] = [
             r"pricing",
         ],
         body_keywords=[
-            "payment", "pay", "invoice", "net 30", "net 60",
-            "due date", "late fee", "interest", "compensation",
-            "fee", "pricing", "amount due",
+            "payment",
+            "pay",
+            "invoice",
+            "net 30",
+            "net 60",
+            "due date",
+            "late fee",
+            "interest",
+            "compensation",
+            "fee",
+            "pricing",
+            "amount due",
         ],
         min_keyword_hits=2,
     ),
@@ -167,10 +222,16 @@ _CLAUSE_PATTERNS: list[_ClausePattern] = [
             r"cap\s+on\s+liability",
         ],
         body_keywords=[
-            "limitation of liability", "aggregate liability",
-            "shall not exceed", "indirect damages", "consequential damages",
-            "incidental damages", "special damages", "punitive damages",
-            "in no event", "cap on liability",
+            "limitation of liability",
+            "aggregate liability",
+            "shall not exceed",
+            "indirect damages",
+            "consequential damages",
+            "incidental damages",
+            "special damages",
+            "punitive damages",
+            "in no event",
+            "cap on liability",
         ],
         min_keyword_hits=2,
     ),
@@ -182,9 +243,16 @@ _CLAUSE_PATTERNS: list[_ClausePattern] = [
             r"ownership\s+of\s+work",
         ],
         body_keywords=[
-            "intellectual property", "patent", "copyright", "trademark",
-            "trade secret", "license", "ownership", "work product",
-            "proprietary rights", "ip rights",
+            "intellectual property",
+            "patent",
+            "copyright",
+            "trademark",
+            "trade secret",
+            "license",
+            "ownership",
+            "work product",
+            "proprietary rights",
+            "ip rights",
         ],
         min_keyword_hits=2,
     ),
@@ -195,9 +263,14 @@ _CLAUSE_PATTERNS: list[_ClausePattern] = [
             r"disclaimer\s+of\s+warrant",
         ],
         body_keywords=[
-            "warranty", "warranties", "warrants", "as is",
-            "merchantability", "fitness for a particular purpose",
-            "disclaimer", "no warranty",
+            "warranty",
+            "warranties",
+            "warrants",
+            "as is",
+            "merchantability",
+            "fitness for a particular purpose",
+            "disclaimer",
+            "no warranty",
         ],
         min_keyword_hits=2,
     ),
@@ -208,9 +281,15 @@ _CLAUSE_PATTERNS: list[_ClausePattern] = [
             r"representations",
         ],
         body_keywords=[
-            "represents", "representation", "warrants", "represents and warrants",
-            "covenants", "acknowledges", "duly authorized",
-            "validly existing", "good standing",
+            "represents",
+            "representation",
+            "warrants",
+            "represents and warrants",
+            "covenants",
+            "acknowledges",
+            "duly authorized",
+            "validly existing",
+            "good standing",
         ],
         min_keyword_hits=2,
     ),
@@ -222,9 +301,15 @@ _CLAUSE_PATTERNS: list[_ClausePattern] = [
             r"mediation",
         ],
         body_keywords=[
-            "dispute", "arbitration", "mediation", "arbitrator",
-            "dispute resolution", "good faith", "negotiate",
-            "binding arbitration", "adr",
+            "dispute",
+            "arbitration",
+            "mediation",
+            "arbitrator",
+            "dispute resolution",
+            "good faith",
+            "negotiate",
+            "binding arbitration",
+            "adr",
         ],
         min_keyword_hits=2,
     ),
@@ -234,8 +319,13 @@ _CLAUSE_PATTERNS: list[_ClausePattern] = [
             r"assignment",
         ],
         body_keywords=[
-            "assign", "assignment", "transfer", "delegate",
-            "without prior written consent", "assignee", "successor",
+            "assign",
+            "assignment",
+            "transfer",
+            "delegate",
+            "without prior written consent",
+            "assignee",
+            "successor",
         ],
         min_keyword_hits=2,
     ),
@@ -245,8 +335,12 @@ _CLAUSE_PATTERNS: list[_ClausePattern] = [
             r"severability",
         ],
         body_keywords=[
-            "severability", "severable", "invalid", "unenforceable",
-            "remaining provisions", "shall remain in full force",
+            "severability",
+            "severable",
+            "invalid",
+            "unenforceable",
+            "remaining provisions",
+            "shall remain in full force",
         ],
         min_keyword_hits=2,
     ),
@@ -258,9 +352,13 @@ _CLAUSE_PATTERNS: list[_ClausePattern] = [
             r"merger\s+clause",
         ],
         body_keywords=[
-            "entire agreement", "whole agreement", "supersedes",
-            "prior agreements", "prior negotiations",
-            "constitutes the entire", "oral or written",
+            "entire agreement",
+            "whole agreement",
+            "supersedes",
+            "prior agreements",
+            "prior negotiations",
+            "constitutes the entire",
+            "oral or written",
         ],
         min_keyword_hits=2,
     ),
@@ -271,8 +369,13 @@ _CLAUSE_PATTERNS: list[_ClausePattern] = [
             r"modification",
         ],
         body_keywords=[
-            "amendment", "modify", "modification", "amended",
-            "in writing", "signed by both parties", "mutual consent",
+            "amendment",
+            "modify",
+            "modification",
+            "amended",
+            "in writing",
+            "signed by both parties",
+            "mutual consent",
             "written agreement",
         ],
         min_keyword_hits=2,
@@ -284,9 +387,15 @@ _CLAUSE_PATTERNS: list[_ClausePattern] = [
             r"notices",
         ],
         body_keywords=[
-            "notice", "written notice", "deliver", "certified mail",
-            "email notification", "deemed received", "sent to",
-            "address", "attention",
+            "notice",
+            "written notice",
+            "deliver",
+            "certified mail",
+            "email notification",
+            "deemed received",
+            "sent to",
+            "address",
+            "attention",
         ],
         min_keyword_hits=2,
     ),
@@ -321,7 +430,7 @@ class ClauseExtractor:
         re.MULTILINE | re.VERBOSE,
     )
 
-    def __init__(self, patterns: Optional[list[_ClausePattern]] = None) -> None:
+    def __init__(self, patterns: list[_ClausePattern] | None = None) -> None:
         """Initialize the clause extractor.
 
         Args:
@@ -329,7 +438,7 @@ class ClauseExtractor:
         """
         self.patterns = patterns or _CLAUSE_PATTERNS
 
-    def extract(self, text: str, page_hint: Optional[int] = None) -> list[Clause]:
+    def extract(self, text: str, page_hint: int | None = None) -> list[Clause]:
         """Extract all detectable clauses from the given text.
 
         Args:
@@ -348,27 +457,24 @@ class ClauseExtractor:
                 continue
             for pattern in self.patterns:
                 confidence = self._score_section(section_text, pattern)
-                if confidence > 0:
-                    if start not in seen_offsets:
-                        clauses.append(
-                            Clause(
-                                type=pattern.clause_type,
-                                text=section_text.strip(),
-                                confidence=min(confidence, 1.0),
-                                page=page_hint,
-                                start_char=start,
-                                end_char=end,
-                            )
+                if confidence > 0 and start not in seen_offsets:
+                    clauses.append(
+                        Clause(
+                            type=pattern.clause_type,
+                            text=section_text.strip(),
+                            confidence=min(confidence, 1.0),
+                            page=page_hint,
+                            start_char=start,
+                            end_char=end,
                         )
-                        seen_offsets.add(start)
+                    )
+                    seen_offsets.add(start)
 
         # Sort by position
         clauses.sort(key=lambda c: c.start_char or 0)
         return clauses
 
-    def extract_by_type(
-        self, text: str, clause_types: list[ClauseType]
-    ) -> list[Clause]:
+    def extract_by_type(self, text: str, clause_types: list[ClauseType]) -> list[Clause]:
         """Extract only the specified clause types.
 
         Args:
@@ -404,7 +510,7 @@ class ClauseExtractor:
 
         # Merge very short paragraphs with the next one
         merged: list[tuple[int, int, str]] = []
-        buffer_start: Optional[int] = None
+        buffer_start: int | None = None
         buffer_parts: list[str] = []
         for start, end, para in paragraphs:
             if buffer_start is None:
@@ -426,7 +532,7 @@ class ClauseExtractor:
         lower = section.lower()
         score = 0.0
 
-        # Check heading patterns (strong signal — worth 0.5)
+        # Check heading patterns (strong signal â€” worth 0.5)
         first_line = section.strip().split("\n")[0].lower()
         for hp in pattern.heading_patterns:
             if re.search(hp, first_line, re.IGNORECASE):
@@ -451,6 +557,7 @@ class ClauseExtractor:
 # Entity Extractor
 # ---------------------------------------------------------------------------
 
+
 class EntityExtractor:
     """Extract named entities from legal text using regex patterns.
 
@@ -465,7 +572,7 @@ class EntityExtractor:
             print(f"{entity.type.value}: {entity.text}")
     """
 
-    # Date patterns — covers most legal date formats
+    # Date patterns â€” covers most legal date formats
     _DATE_PATTERNS: list[re.Pattern] = [
         # "January 1, 2024" / "Jan 1, 2024"
         re.compile(
@@ -490,9 +597,9 @@ class EntityExtractor:
 
     # Monetary values
     _MONEY_PATTERNS: list[re.Pattern] = [
-        # "$1,000,000.00" / "USD 500" / "£1,000"
+        # "$1,000,000.00" / "USD 500" / "Â£1,000"
         re.compile(
-            r"(?:[\$£€¥]|USD|GBP|EUR)\s*\d[\d,]*(?:\.\d{1,2})?"
+            r"(?:[\$Â£â‚¬Â¥]|USD|GBP|EUR)\s*\d[\d,]*(?:\.\d{1,2})?"
             r"(?:\s*(?:million|billion|thousand|hundred))?",
             re.IGNORECASE,
         ),
@@ -503,32 +610,32 @@ class EntityExtractor:
         ),
     ]
 
-    # Party patterns — detect "between X and Y" or "by and between" constructs
+    # Party patterns â€” detect "between X and Y" or "by and between" constructs
     _PARTY_PATTERNS: list[re.Pattern] = [
         # "by and between Acme Corp. ("Company") and John Smith ("Contractor")"
         re.compile(
-            r'(?:by\s+and\s+)?between\s+'
-            r'((?:[A-Z][A-Za-z&,.\'\- ]+(?:Ltd|LLC|Inc|Corp|LLP|GmbH|Pvt|PLC)?\.?))'
-            r'\s*(?:\([\"\u201c]?\w+[\"\u201d]?\))?'
-            r'\s+and\s+'
-            r'((?:[A-Z][A-Za-z&,.\'\- ]+(?:Ltd|LLC|Inc|Corp|LLP|GmbH|Pvt|PLC)?\.?))',
+            r"(?:by\s+and\s+)?between\s+"
+            r"((?:[A-Z][A-Za-z&,.\'\- ]+(?:Ltd|LLC|Inc|Corp|LLP|GmbH|Pvt|PLC)?\.?))"
+            r"\s*(?:\([\"\u201c]?\w+[\"\u201d]?\))?"
+            r"\s+and\s+"
+            r"((?:[A-Z][A-Za-z&,.\'\- ]+(?:Ltd|LLC|Inc|Corp|LLP|GmbH|Pvt|PLC)?\.?))",
             re.MULTILINE,
         ),
         # "Acme Corp. (the "Company")" or 'Acme Corp. (hereinafter "Company")'
         re.compile(
-            r'([A-Z][A-Za-z&,.\'\- ]+'
-            r'(?:Ltd|LLC|Inc|Corp|LLP|GmbH|Pvt|PLC)?\.?)'
-            r'\s*\((?:the\s+|hereinafter\s+)?[\"\u201c](\w+)[\"\u201d]\)',
+            r"([A-Z][A-Za-z&,.\'\- ]+"
+            r"(?:Ltd|LLC|Inc|Corp|LLP|GmbH|Pvt|PLC)?\.?)"
+            r"\s*\((?:the\s+|hereinafter\s+)?[\"\u201c](\w+)[\"\u201d]\)",
         ),
     ]
 
-    # Duration patterns — "12 months", "two (2) years"
+    # Duration patterns â€” "12 months", "two (2) years"
     _DURATION_PATTERN = re.compile(
         r"\b(?:\w+\s*\(\s*)?(\d+)\s*\)?\s*(days?|weeks?|months?|years?|business\s+days?)\b",
         re.IGNORECASE,
     )
 
-    # Legal reference patterns — "Section 4.2", "Article III"
+    # Legal reference patterns â€” "Section 4.2", "Article III"
     _REFERENCE_PATTERN = re.compile(
         r"\b(?:Section|Article|Clause|Paragraph|Schedule|Exhibit|Appendix|Annex)"
         r"\s+[\dIVXivx]+(?:\.\d+)*(?:\([a-z]\))?",
@@ -688,6 +795,7 @@ class EntityExtractor:
 # Risk Detector
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class _RiskRule:
     """Internal rule definition for risk detection."""
@@ -754,7 +862,12 @@ class RiskDetector:
         risks.extend(self._check_ambiguous_language(text))
 
         # Sort: HIGH first, then MEDIUM, LOW, INFO
-        severity_order = {RiskLevel.HIGH: 0, RiskLevel.MEDIUM: 1, RiskLevel.LOW: 2, RiskLevel.INFO: 3}
+        severity_order = {
+            RiskLevel.HIGH: 0,
+            RiskLevel.MEDIUM: 1,
+            RiskLevel.LOW: 2,
+            RiskLevel.INFO: 3,
+        }
         risks.sort(key=lambda r: severity_order.get(r.level, 99))
 
         # Annotate clause risk levels based on detected risks
@@ -773,10 +886,13 @@ class RiskDetector:
                         level=RiskLevel.HIGH,
                         category="missing_clause",
                         description=(
-                            f"Missing essential clause: {clause_type.value.replace('_', ' ').title()}. "
+                            "Missing essential clause: "
+                            f"{clause_type.value.replace('_', ' ').title()}. "
                             f"This clause is typically required in commercial contracts."
                         ),
-                        suggestion=f"Add a {clause_type.value.replace('_', ' ')} clause to the agreement.",
+                        suggestion=(
+                            f"Add a {clause_type.value.replace('_', ' ')} clause to the agreement."
+                        ),
                     )
                 )
         return risks
@@ -792,9 +908,12 @@ class RiskDetector:
                         level=RiskLevel.LOW,
                         category="missing_clause",
                         description=(
-                            f"Missing recommended clause: {clause_type.value.replace('_', ' ').title()}."
+                            "Missing recommended clause: "
+                            f"{clause_type.value.replace('_', ' ').title()}."
                         ),
-                        suggestion=f"Consider adding a {clause_type.value.replace('_', ' ')} clause.",
+                        suggestion=(
+                            f"Consider adding a {clause_type.value.replace('_', ' ')} clause."
+                        ),
                     )
                 )
         return risks
@@ -802,8 +921,6 @@ class RiskDetector:
     def _check_unlimited_liability(self, clauses: list[Clause], text: str) -> list[Risk]:
         """Check for unlimited or uncapped liability."""
         risks: list[Risk] = []
-        lower = text.lower()
-
         liability_clauses = [c for c in clauses if c.type == ClauseType.LIABILITY]
         if liability_clauses:
             for clause in liability_clauses:
@@ -826,7 +943,10 @@ class RiskDetector:
                             category="unlimited_liability",
                             description="Liability clause found but no cap or limit is specified.",
                             clause=clause,
-                            suggestion="Add a specific liability cap (e.g., 'not to exceed the total fees paid').",
+                            suggestion=(
+                                "Add a specific liability cap (e.g., 'not to exceed"
+                                " the total fees paid')."
+                            ),
                         )
                     )
         return risks
@@ -840,8 +960,7 @@ class RiskDetector:
             lower = clause.text.lower()
             # Look for mutual indemnification
             is_mutual = any(
-                phrase in lower
-                for phrase in ["mutual", "each party", "both parties", "reciprocal"]
+                phrase in lower for phrase in ["mutual", "each party", "both parties", "reciprocal"]
             )
             if not is_mutual:
                 risks.append(
@@ -874,7 +993,10 @@ class RiskDetector:
                         level=RiskLevel.MEDIUM,
                         category="auto_renewal",
                         description="Contract contains automatic renewal provisions.",
-                        suggestion="Ensure adequate notice period for non-renewal and clear opt-out mechanism.",
+                        suggestion=(
+                            "Ensure adequate notice period for non-renewal"
+                            " and clear opt-out mechanism."
+                        ),
                     )
                 )
                 break
@@ -897,7 +1019,10 @@ class RiskDetector:
                         level=RiskLevel.MEDIUM,
                         category="unilateral_termination",
                         description="One party may terminate without cause or for convenience.",
-                        suggestion="Ensure termination for convenience is mutual or negotiate adequate notice period.",
+                        suggestion=(
+                            "Ensure termination for convenience is mutual"
+                            " or negotiate adequate notice period."
+                        ),
                     )
                 )
                 break
@@ -934,7 +1059,10 @@ class RiskDetector:
                         level=RiskLevel.HIGH,
                         category="broad_ip_assignment",
                         description="Broad IP assignment without clear scope limitation.",
-                        suggestion="Limit IP assignment to work product created specifically under this agreement.",
+                        suggestion=(
+                            "Limit IP assignment to work product created"
+                            " specifically under this agreement."
+                        ),
                     )
                 )
         return risks
@@ -950,8 +1078,13 @@ class RiskDetector:
             has_limits = any(
                 phrase in lower
                 for phrase in [
-                    "within", "mile", "radius", "geographic",
-                    "months", "years", "period of",
+                    "within",
+                    "mile",
+                    "radius",
+                    "geographic",
+                    "months",
+                    "years",
+                    "period of",
                 ]
             )
             if not has_limits:
@@ -959,9 +1092,14 @@ class RiskDetector:
                     Risk(
                         level=RiskLevel.HIGH,
                         category="broad_non_compete",
-                        description="Non-compete clause may lack geographic or temporal boundaries.",
+                        description=(
+                            "Non-compete clause may lack geographic or temporal boundaries."
+                        ),
                         clause=clause,
-                        suggestion="Ensure non-compete has reasonable geographic scope and time limitation.",
+                        suggestion=(
+                            "Ensure non-compete has reasonable geographic"
+                            " scope and time limitation."
+                        ),
                     )
                 )
         return risks
@@ -972,14 +1110,17 @@ class RiskDetector:
         lower = text.lower()
 
         ambiguous_phrases = [
-            ("reasonable efforts", "Define what constitutes 'reasonable efforts' with specific criteria."),
+            (
+                "reasonable efforts",
+                "Define what constitutes 'reasonable efforts' with specific criteria.",
+            ),
             ("best efforts", "Define specific benchmarks for 'best efforts' obligations."),
             ("as soon as practicable", "Replace with specific timeframes."),
             ("material adverse", "Define 'material adverse' with specific thresholds."),
         ]
 
         found_count = 0
-        for phrase, suggestion in ambiguous_phrases:
+        for phrase, _suggestion in ambiguous_phrases:
             if phrase in lower:
                 found_count += 1
 
@@ -992,7 +1133,9 @@ class RiskDetector:
                         f"Document contains {found_count} potentially ambiguous phrases "
                         f"(e.g., 'reasonable efforts', 'best efforts')."
                     ),
-                    suggestion="Consider defining ambiguous terms or replacing with specific criteria.",
+                    suggestion=(
+                        "Consider defining ambiguous terms or replacing with specific criteria."
+                    ),
                 )
             )
         return risks

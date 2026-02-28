@@ -15,10 +15,10 @@ from legal_doc_analyzer.models import (
     RiskLevel,
 )
 
-
 # ---------------------------------------------------------------------------
 # ClauseExtractor edge cases
 # ---------------------------------------------------------------------------
+
 
 class TestClauseExtractorEdgeCases:
     """Edge-case tests for ClauseExtractor."""
@@ -89,8 +89,7 @@ class TestClauseExtractorEdgeCases:
 
     def test_extract_by_type_empty_filter(self, extractor: ClauseExtractor) -> None:
         text = (
-            "1. TERMINATION\n"
-            "Either party may terminate upon 30 days notice for material breach.\n"
+            "1. TERMINATION\nEither party may terminate upon 30 days notice for material breach.\n"
         )
         clauses = extractor.extract_by_type(text, [ClauseType.PAYMENT])
         assert clauses == []
@@ -120,6 +119,7 @@ class TestClauseExtractorEdgeCases:
 # ---------------------------------------------------------------------------
 # EntityExtractor edge cases
 # ---------------------------------------------------------------------------
+
 
 class TestEntityExtractorEdgeCases:
     """Edge-case tests for EntityExtractor."""
@@ -188,6 +188,7 @@ class TestEntityExtractorEdgeCases:
 # RiskDetector edge cases
 # ---------------------------------------------------------------------------
 
+
 class TestRiskDetectorEdgeCases:
     """Edge-case tests for RiskDetector."""
 
@@ -203,10 +204,7 @@ class TestRiskDetectorEdgeCases:
     def test_all_essential_plus_recommended(self, detector: RiskDetector) -> None:
         """No missing-clause risks when everything is present."""
         all_types = RiskDetector.ESSENTIAL_CLAUSES | RiskDetector.RECOMMENDED_CLAUSES
-        clauses = [
-            Clause(type=ct, text=f"Clause {ct.value}", confidence=0.9)
-            for ct in all_types
-        ]
+        clauses = [Clause(type=ct, text=f"Clause {ct.value}", confidence=0.9) for ct in all_types]
         risks = detector.analyze(clauses=clauses, text="Some contract text.")
         missing = [r for r in risks if r.category == "missing_clause"]
         assert len(missing) == 0
@@ -295,6 +293,7 @@ class TestRiskDetectorEdgeCases:
 # Model edge cases
 # ---------------------------------------------------------------------------
 
+
 class TestModelEdgeCases:
     """Edge-case tests for data models."""
 
@@ -317,8 +316,7 @@ class TestModelEdgeCases:
     def test_analysis_result_risk_score_all_info(self) -> None:
         """INFO-level risks should contribute 0 to score."""
         risks = [
-            Risk(level=RiskLevel.INFO, category=f"i{i}", description=f"info {i}")
-            for i in range(5)
+            Risk(level=RiskLevel.INFO, category=f"i{i}", description=f"info {i}") for i in range(5)
         ]
         result = AnalysisResult(filename="f.pdf", summary="s", risks=risks)
         assert result.risk_score == 0.0
@@ -361,11 +359,13 @@ class TestModelEdgeCases:
 # Parsers edge cases
 # ---------------------------------------------------------------------------
 
+
 class TestParsersEdgeCases:
     """Edge-case tests for document parsers."""
 
     def test_text_parser_empty_file(self, tmp_path) -> None:
         from legal_doc_analyzer.parsers import TextParser
+
         f = tmp_path / "empty.txt"
         f.write_text("", encoding="utf-8")
         parser = TextParser()
@@ -375,6 +375,7 @@ class TestParsersEdgeCases:
 
     def test_text_parser_form_feed_pages(self, tmp_path) -> None:
         from legal_doc_analyzer.parsers import TextParser
+
         f = tmp_path / "multi.txt"
         f.write_text("Page one\fPage two\fPage three", encoding="utf-8")
         parser = TextParser()
@@ -383,19 +384,22 @@ class TestParsersEdgeCases:
 
     def test_text_parser_nonexistent_file(self, tmp_path) -> None:
         from legal_doc_analyzer.parsers import TextParser
+
         parser = TextParser()
         with pytest.raises(FileNotFoundError):
             parser.parse(tmp_path / "nope.txt")
 
     def test_get_parser_unsupported_ext(self, tmp_path) -> None:
         from legal_doc_analyzer.parsers import get_parser
+
         f = tmp_path / "data.xyz"
         f.write_text("data")
         with pytest.raises(ValueError, match="No parser available"):
             get_parser(f)
 
     def test_get_parser_txt(self, tmp_path) -> None:
-        from legal_doc_analyzer.parsers import get_parser, TextParser
+        from legal_doc_analyzer.parsers import TextParser, get_parser
+
         f = tmp_path / "doc.txt"
         f.write_text("hello")
         parser = get_parser(f)
@@ -403,6 +407,7 @@ class TestParsersEdgeCases:
 
     def test_parsed_document_char_offset(self, tmp_path) -> None:
         from legal_doc_analyzer.parsers import TextParser
+
         f = tmp_path / "contract.txt"
         f.write_text("Page 1 text\fPage 2 text", encoding="utf-8")
         parser = TextParser()
@@ -414,6 +419,7 @@ class TestParsersEdgeCases:
 
     def test_html_parser_strips_tags(self, tmp_path) -> None:
         from legal_doc_analyzer.parsers import HTMLParser
+
         f = tmp_path / "doc.html"
         f.write_text(
             "<html><body><h1>Title</h1><p>Content here.</p></body></html>",
@@ -426,6 +432,7 @@ class TestParsersEdgeCases:
 
     def test_html_parser_removes_script(self, tmp_path) -> None:
         from legal_doc_analyzer.parsers import HTMLParser
+
         f = tmp_path / "doc.html"
         f.write_text(
             "<html><body><script>alert('x')</script><p>Safe text</p></body></html>",

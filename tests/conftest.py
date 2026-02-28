@@ -24,7 +24,7 @@ def short_legal_text() -> str:
     """A short legal text snippet for targeted tests."""
     return (
         "This Agreement is entered into as of March 10, 2024, "
-        "by and between Alpha Corp. (\"Client\") and Beta Services LLC (\"Provider\").\n\n"
+        'by and between Alpha Corp. ("Client") and Beta Services LLC ("Provider").\n\n'
         "1. CONFIDENTIALITY\n"
         "The Provider shall maintain the confidentiality of all proprietary information "
         "and trade secrets disclosed by the Client. The receiving party shall not disclose "

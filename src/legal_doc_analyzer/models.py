@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
 
 
 class ClauseType(str, Enum):
@@ -60,12 +59,12 @@ class Clause:
     type: ClauseType
     text: str
     confidence: float
-    page: Optional[int] = None
-    paragraph: Optional[int] = None
-    start_char: Optional[int] = None
-    end_char: Optional[int] = None
+    page: int | None = None
+    paragraph: int | None = None
+    start_char: int | None = None
+    end_char: int | None = None
     risk_level: RiskLevel = RiskLevel.INFO
-    risk_reason: Optional[str] = None
+    risk_reason: str | None = None
     metadata: dict = field(default_factory=dict)
 
     @property
@@ -90,11 +89,11 @@ class Entity:
 
     type: EntityType
     text: str
-    normalized: Optional[str] = None
+    normalized: str | None = None
     confidence: float = 1.0
-    page: Optional[int] = None
-    start_char: Optional[int] = None
-    end_char: Optional[int] = None
+    page: int | None = None
+    start_char: int | None = None
+    end_char: int | None = None
 
     def to_dict(self) -> dict:
         return {
@@ -112,8 +111,8 @@ class Risk:
     level: RiskLevel
     category: str
     description: str
-    clause: Optional[Clause] = None
-    suggestion: Optional[str] = None
+    clause: Clause | None = None
+    suggestion: str | None = None
 
     def to_dict(self) -> dict:
         return {
@@ -141,7 +140,12 @@ class AnalysisResult:
         """Overall risk score (0-1)."""
         if not self.risks:
             return 0.0
-        weights = {RiskLevel.HIGH: 1.0, RiskLevel.MEDIUM: 0.5, RiskLevel.LOW: 0.2, RiskLevel.INFO: 0.0}
+        weights = {
+            RiskLevel.HIGH: 1.0,
+            RiskLevel.MEDIUM: 0.5,
+            RiskLevel.LOW: 0.2,
+            RiskLevel.INFO: 0.0,
+        }
         total = sum(weights.get(r.level, 0) for r in self.risks)
         return min(1.0, total / max(len(self.risks), 1))
 

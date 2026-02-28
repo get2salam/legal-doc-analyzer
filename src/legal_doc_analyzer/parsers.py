@@ -10,7 +10,6 @@ import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 
 
 @dataclass
@@ -40,7 +39,7 @@ class ParsedDocument:
         """Total number of pages."""
         return len(self.pages)
 
-    def get_page_for_char_offset(self, offset: int) -> Optional[int]:
+    def get_page_for_char_offset(self, offset: int) -> int | None:
         """Given a character offset in full_text, return the page number."""
         current = 0
         for page in self.pages:
@@ -156,11 +155,10 @@ class PDFParser(DocumentParser):
 
         try:
             import pdfplumber
-        except ImportError:
+        except ImportError as exc:
             raise ImportError(
-                "pdfplumber is required for PDF parsing. "
-                "Install it with: pip install pdfplumber"
-            )
+                "pdfplumber is required for PDF parsing. Install it with: pip install pdfplumber"
+            ) from exc
 
         pages = []
         metadata: dict = {"format": "pdf"}
@@ -213,11 +211,10 @@ class DOCXParser(DocumentParser):
 
         try:
             from docx import Document
-        except ImportError:
+        except ImportError as exc:
             raise ImportError(
-                "python-docx is required for DOCX parsing. "
-                "Install it with: pip install python-docx"
-            )
+                "python-docx is required for DOCX parsing. Install it with: pip install python-docx"
+            ) from exc
 
         doc = Document(str(path))
         paragraphs = [p.text for p in doc.paragraphs if p.text.strip()]
@@ -256,7 +253,7 @@ class HTMLParser(DocumentParser):
     """Parser for HTML documents.
 
     Strips HTML tags and extracts readable text content. Uses Python's
-    built-in html.parser module — no external dependencies required.
+    built-in html.parser module â€” no external dependencies required.
     """
 
     supported_extensions = (".html", ".htm")

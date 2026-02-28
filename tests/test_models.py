@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from legal_doc_analyzer.models import (
     AnalysisResult,
     Clause,
@@ -14,10 +12,10 @@ from legal_doc_analyzer.models import (
     RiskLevel,
 )
 
-
 # ---------------------------------------------------------------------------
 # Clause tests
 # ---------------------------------------------------------------------------
+
 
 class TestClause:
     """Tests for the Clause dataclass."""
@@ -96,6 +94,7 @@ class TestClause:
 # Entity tests
 # ---------------------------------------------------------------------------
 
+
 class TestEntity:
     """Tests for the Entity dataclass."""
 
@@ -127,7 +126,15 @@ class TestEntity:
         assert d["confidence"] == 0.95
 
     def test_all_entity_types_exist(self) -> None:
-        expected = {"party", "date", "money", "obligation", "legal_reference", "jurisdiction", "duration"}
+        expected = {
+            "party",
+            "date",
+            "money",
+            "obligation",
+            "legal_reference",
+            "jurisdiction",
+            "duration",
+        }
         actual = {e.value for e in EntityType}
         assert expected.issubset(actual)
 
@@ -135,6 +142,7 @@ class TestEntity:
 # ---------------------------------------------------------------------------
 # Risk tests
 # ---------------------------------------------------------------------------
+
 
 class TestRisk:
     """Tests for the Risk dataclass."""
@@ -176,6 +184,7 @@ class TestRisk:
 # ---------------------------------------------------------------------------
 # AnalysisResult tests
 # ---------------------------------------------------------------------------
+
 
 class TestAnalysisResult:
     """Tests for the AnalysisResult dataclass."""
