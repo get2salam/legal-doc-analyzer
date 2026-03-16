@@ -1,6 +1,6 @@
 """Legal Document Analyzer -- AI-powered legal document analysis."""
 
-__version__ = "0.5.0"
+__version__ = "0.6.0"
 
 from .analyzer import LegalAnalyzer
 from .classifier import (
@@ -27,6 +27,13 @@ from .preprocessing import (
     TextPreprocessor,
     compare_documents,
     count_syllables,
+)
+from .segmenter import (
+    DocumentSegmenter,
+    DocumentStructure,
+    Section,
+    SectionLevel,
+    segment_document,
 )
 from .summarizer import LegalSummarizer, SentenceScore, SummaryResult
 
@@ -58,6 +65,12 @@ __all__ = [
     "compute_metrics",
     "cross_validate",
     "stratified_k_fold",
+    # Document segmentation
+    "DocumentSegmenter",
+    "DocumentStructure",
+    "Section",
+    "SectionLevel",
+    "segment_document",
     # Summarization
     "LegalSummarizer",
     "SentenceScore",
