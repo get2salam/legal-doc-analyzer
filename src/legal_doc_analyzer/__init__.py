@@ -36,6 +36,12 @@ from .segmenter import (
     segment_document,
 )
 from .summarizer import LegalSummarizer, SentenceScore, SummaryResult
+from .timeline import (
+    ContractTimeline,
+    EventType,
+    TimelineEvent,
+    TimelineExtractor,
+)
 
 __all__ = [
     # Core
@@ -75,4 +81,9 @@ __all__ = [
     "LegalSummarizer",
     "SentenceScore",
     "SummaryResult",
+    # Timeline extraction
+    "TimelineExtractor",
+    "ContractTimeline",
+    "TimelineEvent",
+    "EventType",
 ]
